@@ -1,2 +1,4 @@
 thanks to DblSaiko for their math and terminal screens, all these files are are the same functions just using org.joml
 instead of the minecraft math types
+
+thanks to CrashAndSideburns on github for their UXN simulator written in rust (which I took implementation from)

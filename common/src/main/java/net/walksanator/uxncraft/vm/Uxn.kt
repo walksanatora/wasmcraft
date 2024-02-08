@@ -54,7 +54,7 @@ class Uxn(val ram: UByteArray) {
     var pc: UShort = 0x100u
     val ws = Stack() // Working Stack
     val rs = Stack() // Run Stack
-    val devices = Array<Optional<Device>>(16) { Optional.empty() }
+    var devices = Array<Optional<Device>>(16) { Optional.empty() }
 
     /**
      * steps VM execution by one instruction

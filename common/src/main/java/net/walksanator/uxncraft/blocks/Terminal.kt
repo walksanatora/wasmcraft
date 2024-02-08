@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
 import net.walksanator.uxncraft.QemuCraft
+import net.walksanator.uxncraft.UXNCraft
 import kotlin.experimental.xor
 
 class TerminalBlock(settings: Properties) : Block(settings), EntityBlock, BlockEntityTicker<TerminalEntity> {
@@ -65,7 +66,7 @@ class TerminalEntity(pos: BlockPos, state: BlockState) : BlockEntity(QemuCraft.T
     var busId: Byte = 1
 
     val screen = ByteArray(80 * 50) { 0x20 } //init the 80x50 screen to empty bytes
-    val charset = QemuCraft.RESOURCES.charset!!.clone() // load the charset from assets? (probally should be data)
+    val charset = UXNCraft.RESOURCES.charset!!.clone() // load the charset from assets? (probally should be data)
     val kb = ByteArray(16) // keyboard buffer.
 
     /** terminal command to run

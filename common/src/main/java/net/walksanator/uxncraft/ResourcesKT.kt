@@ -2,12 +2,12 @@ package net.walksanator.uxncraft
 
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceManager
-import net.walksanator.uxncraft.QemuCraft.MOD_ID
+import net.walksanator.uxncraft.UXNCraft.MOD_ID
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL30
 
 class ResourcesKT {
-     public fun loadShader(rm: ResourceManager, id: String): Int {
+      fun loadShader(rm: ResourceManager, id: String): Int {
         val vshs = rm.getResource(ResourceLocation(MOD_ID, "shaders/$id.vert")).get().open().bufferedReader().readText()
         val fshs = rm.getResource(ResourceLocation(MOD_ID, "shaders/$id.frag")).get().open().bufferedReader().readText()
 
