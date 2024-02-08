@@ -64,27 +64,34 @@ class TerminalEntity(pos: BlockPos, state: BlockState) : BlockEntity(QemuCraft.T
 
     var busId: Byte = 1
 
-    val screen = ByteArray(80 * 50) { 0x20 }
-    val charset = QemuCraft.RESOURCES.charset!!.clone()
-    val kb = ByteArray(16)
+    val screen = ByteArray(80 * 50) { 0x20 } //init the 80x50 screen to empty bytes
+    val charset = QemuCraft.RESOURCES.charset!!.clone() // load the charset from assets? (probally should be data)
+    val kb = ByteArray(16) // keyboard buffer.
 
-    var command: Byte = 0
+    /** terminal command to run
+     *  1 - fill    bx2,by2 to bw,bh fills with bx1
+     *  2 - invert  bx2,by2 to bw,bh inverts pallet by xor 0x80
+     *  3 - shift   bx2, by2 to bw,bh... idk how this works
+     *  4 - reload charset from assets
+     */
+    var command: Byte = 0 // terminal command to run
 
-    var row = 0
-    var cx = 0
-    var cy = 0
-    var cm = 2
-    var kbs = 0
-    var kbp = 0
 
-    var bx1 = 0
-    var by1 = 0
-    var bx2 = 0
-    var by2 = 0
-    var bw = 0
-    var bh = 0
+    var row = 0 // l/r
+    var cx = 0 //cursor X
+    var cy = 0  //cursor Y
+    var cm = 2 // cursor mode, 0=solid, 1=inverted, 2=blink
+    var kbs = 0 // key buffer start
+    var kbp = 0 // key buffer position
 
-    var char = 0
+    var bx1 = 0 //input bx1
+    var by1 = 0 //input by1
+    var bx2 = 0 //input bx2
+    var by2 = 0 //input by2
+    var bw = 0 //input bw
+    var bh = 0 //input bh
+
+    var char = 0 //editable char
 
     fun pushKey(byte: Byte): Boolean {
         return if ((kbp + 1) % 16 != kbs) {
