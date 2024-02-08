@@ -1,4 +1,4 @@
-package net.walksanator.qemucraft.fabric
+package net.walksanator.uxncraft.fabric
 
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper
@@ -7,8 +7,8 @@ import net.minecraft.server.packs.PackType.CLIENT_RESOURCES
 import net.minecraft.server.packs.resources.PreparableReloadListener.PreparationBarrier
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.util.profiling.ProfilerFiller
-import net.walksanator.qemucraft.QemuCraft.MOD_ID
-import net.walksanator.qemucraft.Resources
+import net.walksanator.uxncraft.QemuCraft.MOD_ID
+import net.walksanator.uxncraft.Resources
 import org.lwjgl.opengl.GL30
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor

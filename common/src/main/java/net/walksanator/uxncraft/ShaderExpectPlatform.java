@@ -1,4 +1,4 @@
-package net.walksanator.qemucraft;
+package net.walksanator.uxncraft;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 

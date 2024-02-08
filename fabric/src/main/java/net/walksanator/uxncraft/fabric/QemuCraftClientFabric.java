@@ -1,7 +1,7 @@
-package net.walksanator.qemucraft.fabric;
+package net.walksanator.uxncraft.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.walksanator.qemucraft.QemuCraftClient;
+import net.walksanator.uxncraft.QemuCraftClient;
 
 public class QemuCraftClientFabric implements ClientModInitializer {
     @Override

@@ -1,4 +1,4 @@
-package net.walksanator.qemucraft.util.math;//copied from https://raw.githubusercontent.com/qcommon/croco/master/src/main/java/net/dblsaiko/qcommon/croco/Vec4.java
+package net.walksanator.uxncraft.util.math;//copied from https://raw.githubusercontent.com/qcommon/croco/master/src/main/java/net/dblsaiko/qcommon/croco/Vec4.java
 
 import java.util.Objects;
 

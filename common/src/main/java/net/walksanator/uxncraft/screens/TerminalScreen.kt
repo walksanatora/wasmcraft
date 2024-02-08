@@ -18,11 +18,10 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.world.phys.Vec3
-import net.walksanator.qemucraft.QemuCraft
-import net.walksanator.qemucraft.QemuCraftClient
-import net.walksanator.qemucraft.ShaderExpectPlatform
-import net.walksanator.qemucraft.blocks.TerminalEntity
-import net.walksanator.qemucraft.util.math.Mat4
+import net.walksanator.uxncraft.QemuCraft
+import net.walksanator.uxncraft.ShaderExpectPlatform
+import net.walksanator.uxncraft.blocks.TerminalEntity
+import net.walksanator.uxncraft.util.math.Mat4
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.*

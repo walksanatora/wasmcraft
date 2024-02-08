@@ -1,4 +1,4 @@
-package net.walksanator.qemucraft.forge;
+package net.walksanator.uxncraft.forge;
 
 public class ShaderExpectPlatformImpl {
     public static int getShader() {

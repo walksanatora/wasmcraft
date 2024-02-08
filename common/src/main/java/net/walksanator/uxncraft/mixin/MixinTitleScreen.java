@@ -1,4 +1,4 @@
-package net.walksanator.qemucraft.mixin;
+package net.walksanator.uxncraft.mixin;
 
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;

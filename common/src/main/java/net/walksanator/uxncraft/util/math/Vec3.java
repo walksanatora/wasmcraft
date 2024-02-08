@@ -1,4 +1,4 @@
-package net.walksanator.qemucraft.util.math;//copied from https://raw.githubusercontent.com/qcommon/croco/master/src/main/java/net/dblsaiko/qcommon/croco/Vec3.java
+package net.walksanator.uxncraft.util.math;//copied from https://raw.githubusercontent.com/qcommon/croco/master/src/main/java/net/dblsaiko/qcommon/croco/Vec3.java
 
 import org.joml.Vector3d;
 import org.joml.Vector3i;

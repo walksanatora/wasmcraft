@@ -1,7 +1,6 @@
-package net.walksanator.qemucraft;
+package net.walksanator.uxncraft;
 
 import dev.architectury.networking.NetworkManager;
-import dev.architectury.platform.Platform;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -10,21 +9,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.walksanator.qemucraft.blocks.TerminalBlock;
-import net.walksanator.qemucraft.blocks.TerminalEntity;
+import net.walksanator.uxncraft.blocks.TerminalBlock;
+import net.walksanator.uxncraft.blocks.TerminalEntity;
 
 import java.util.function.Supplier;
 
-public class QemuCraft {
+public class UXNCraft {
     public static final Resources RESOURCES = new Resources();
     public static final String MOD_ID = "wasmcraft";
 
@@ -36,7 +31,7 @@ public class QemuCraft {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(MOD_ID, Registries.ITEM);
     public static final RegistrySupplier<CreativeModeTab> CREATIVE_TAB = CREATIVE_TABS.register(new ResourceLocation(MOD_ID,"creative"), () ->
             CreativeTabRegistry.create(Component.translatable("creativeTab.wasmcomputer.example_tab"), () ->
-                new ItemStack(QemuCraft.EXAMPLE_ITEM.get()))
+                new ItemStack(Items.STONE))
     );
 
     public static final RegistrySupplier<Block> TERMINAL_BLOCK = blockItem("terminal_block",()->new TerminalBlock(BlockBehaviour.Properties.of()),new Item.Properties().arch$tab(CREATIVE_TAB));

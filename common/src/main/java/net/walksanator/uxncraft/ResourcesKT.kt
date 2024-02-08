@@ -1,8 +1,8 @@
-package net.walksanator.qemucraft
+package net.walksanator.uxncraft
 
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceManager
-import net.walksanator.qemucraft.QemuCraft.MOD_ID
+import net.walksanator.uxncraft.QemuCraft.MOD_ID
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL30
 

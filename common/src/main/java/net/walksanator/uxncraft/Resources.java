@@ -1,16 +1,15 @@
-package net.walksanator.qemucraft;
+package net.walksanator.uxncraft;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import org.lwjgl.opengl.GL30;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import static net.walksanator.qemucraft.QemuCraft.MOD_ID;
+import static net.walksanator.uxncraft.UXNCraft.MOD_ID;
 
 public class Resources implements PreparableReloadListener {
     public byte[] charset = null;

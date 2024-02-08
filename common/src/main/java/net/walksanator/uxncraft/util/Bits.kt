@@ -4,7 +4,7 @@
 //
 // this was taken from RetroComputers util
 
-package net.walksanator.qemucraft.util
+package net.walksanator.uxncraft.util
 
 import kotlin.experimental.and
 import kotlin.experimental.or

@@ -1,9 +1,9 @@
 // this was taken from RetroComputers
-package net.walksanator.qemucraft.blocks
+package net.walksanator.uxncraft.blocks
 
 import net.dblsaiko.retrocomputers.client.gui.TerminalScreen
 import net.minecraft.client.Minecraft
-import net.walksanator.qemucraft.util.unsigned
+import net.walksanator.uxncraft.util.unsigned
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.InteractionHand
@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
-import net.walksanator.qemucraft.QemuCraft
+import net.walksanator.uxncraft.QemuCraft
 import kotlin.experimental.xor
 
 class TerminalBlock(settings: Properties) : Block(settings), EntityBlock, BlockEntityTicker<TerminalEntity> {

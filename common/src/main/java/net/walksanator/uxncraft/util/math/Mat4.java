@@ -1,4 +1,4 @@
-package net.walksanator.qemucraft.util.math;//code copied from https://raw.githubusercontent.com/qcommon/croco/master/src/main/java/net/dblsaiko/qcommon/croco/Mat4.java
+package net.walksanator.uxncraft.util.math;//code copied from https://raw.githubusercontent.com/qcommon/croco/master/src/main/java/net/dblsaiko/qcommon/croco/Mat4.java
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

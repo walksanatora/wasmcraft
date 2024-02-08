@@ -1,4 +1,4 @@
-package net.walksanator.qemucraft.util.math;
+package net.walksanator.uxncraft.util.math;
 
 import org.joml.Matrix3f;
 

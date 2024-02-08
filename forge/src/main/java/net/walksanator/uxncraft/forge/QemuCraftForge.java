@@ -1,14 +1,14 @@
-package net.walksanator.qemucraft.forge;
+package net.walksanator.uxncraft.forge;
 
 import dev.architectury.platform.forge.EventBuses;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.walksanator.qemucraft.QemuCraft;
+import net.walksanator.uxncraft.QemuCraft;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.walksanator.qemucraft.QemuCraftClient;
-import net.walksanator.qemucraft.Resources;
+import net.walksanator.uxncraft.QemuCraftClient;
+import net.walksanator.uxncraft.Resources;
 
 @Mod(QemuCraft.MOD_ID)
 public class QemuCraftForge {
