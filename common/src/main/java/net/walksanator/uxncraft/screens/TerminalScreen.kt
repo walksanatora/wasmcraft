@@ -18,8 +18,8 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.world.phys.Vec3
-import net.walksanator.uxncraft.QemuCraft
 import net.walksanator.uxncraft.ShaderExpectPlatform
+import net.walksanator.uxncraft.UXNCraft
 import net.walksanator.uxncraft.blocks.TerminalEntity
 import net.walksanator.uxncraft.util.math.Mat4
 import org.lwjgl.BufferUtils
@@ -194,7 +194,7 @@ class TerminalScreen(val te: TerminalEntity) : Screen(Component.translatable("bl
         val buffer = FriendlyByteBuf(Unpooled.buffer())
         buffer.writeBlockPos(te.blockPos)
         buffer.writeByte(c.toInt())
-        NetworkManager.sendToServer(QemuCraft.KEY_PRESS_PACKET, buffer)
+        NetworkManager.sendToServer(UXNCraft.KEY_PRESS_PACKET, buffer)
     }
 
     override fun init() {

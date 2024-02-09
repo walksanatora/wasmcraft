@@ -7,8 +7,8 @@ import net.minecraft.server.packs.PackType.CLIENT_RESOURCES
 import net.minecraft.server.packs.resources.PreparableReloadListener.PreparationBarrier
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.util.profiling.ProfilerFiller
-import net.walksanator.uxncraft.QemuCraft.MOD_ID
 import net.walksanator.uxncraft.Resources
+import net.walksanator.uxncraft.UXNCraft.MOD_ID
 import org.lwjgl.opengl.GL30
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor

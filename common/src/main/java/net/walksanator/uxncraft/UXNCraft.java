@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 public class UXNCraft {
     public static final Resources RESOURCES = new Resources();
-    public static final String MOD_ID = "wasmcraft";
+    public static final String MOD_ID = "uxncraft";
 
     public static final ResourceLocation KEY_PRESS_PACKET = new ResourceLocation(MOD_ID,"key_press");
 

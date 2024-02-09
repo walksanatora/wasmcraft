@@ -1,8 +1,15 @@
 package net.walksanator.uxncraft.vm
 
-abstract class Device(val uxn: Uxn) {
-    abstract fun readByte(address: UByte): UByte;
-    abstract fun writeByte(address: UByte, byte: UByte);
-    abstract fun readShort(address: UByte): UShort;
-    abstract fun writeShort(address: UByte, short: UShort);
+abstract class Device {
+    val backingBuffer = ByteArray(8)// a backing buffer for unused ports
+
+    abstract fun readByte(address: Byte): Byte
+    abstract fun writeByte(address: Byte, byte: Byte)
+    abstract fun readShort(address: Byte): Short
+    abstract fun writeShort(address: Byte, short: Short)
+
+    /**
+     * this is where you perform actions like enque key events based on state
+     */
+    fun postTick(com: Computer) {/*NOP*/}
 }

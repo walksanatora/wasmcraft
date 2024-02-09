@@ -1,11 +1,11 @@
 package net.walksanator.uxncraft.fabric;
 
-import net.walksanator.uxncraft.QemuCraft;
 import net.fabricmc.api.ModInitializer;
+import net.walksanator.uxncraft.UXNCraft;
 
-public class QemuCraftFabric implements ModInitializer {
+public class UXNCraftFabric implements ModInitializer {
     @Override
     public void onInitialize() {
-        QemuCraft.init();
+        UXNCraft.init();
     }
 }

@@ -16,15 +16,15 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.walksanator.qemucraft.fabric.QemuCraftFabric"
+      "net.walksanator.uxncraft.fabric.UXNCraftFabric"
     ],
     "client": [
-      "net.walksanator.qemucraft.fabric.QemuCraftClientFabric"
+      "net.walksanator.uxncraft.fabric.UXNCraftClientFabric"
     ]
   },
   "mixins": [
-    "qemucraft.mixins.json",
-    "qemucraft-common.mixins.json"
+    "uxnucraft.mixins.json",
+    "uxncraft-common.mixins.json"
   ],
   "depends": {
     "fabric": "*",

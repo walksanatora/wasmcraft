@@ -19,7 +19,6 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
-import net.walksanator.uxncraft.QemuCraft
 import net.walksanator.uxncraft.UXNCraft
 import kotlin.experimental.xor
 
@@ -38,7 +37,7 @@ class TerminalBlock(settings: Properties) : Block(settings), EntityBlock, BlockE
             1 -> data.getIndices(data.bx2, data.by2, data.bw, data.bh).forEach { data.screen[it] = data.bx1.toByte() }
             2 -> data.getIndices(data.bx2, data.by2, data.bw, data.bh).forEach { data.screen[it] = data.screen[it] xor 0x80.toByte() }
             3 -> data.getIndices(data.bx2, data.by2, data.bw, data.bh).zip(data.getIndices(data.bx1, data.by1, data.bw, data.bh)).forEach { (dest, src) -> data.screen[dest] = data.screen[src] }
-            4 -> QemuCraft.RESOURCES.charset.copyInto(data.charset)
+            4 -> UXNCraft.RESOURCES.charset.copyInto(data.charset)
             255 -> Unit
             else -> error = true
         }
@@ -49,7 +48,7 @@ class TerminalBlock(settings: Properties) : Block(settings), EntityBlock, BlockE
     }
 
     override fun <T : BlockEntity?> getTicker(world: Level, state: BlockState, type: BlockEntityType<T>): BlockEntityTicker<T>? {
-        return if (!world.isClientSide && type == QemuCraft.TERMINAL_BE_TYPE.get()) {
+        return if (!world.isClientSide && type == UXNCraft.TERMINAL_BE_TYPE.get()) {
             @Suppress("UNCHECKED_CAST")
             this as BlockEntityTicker<T>
         } else {
@@ -61,7 +60,7 @@ class TerminalBlock(settings: Properties) : Block(settings), EntityBlock, BlockE
 
 }
 
-class TerminalEntity(pos: BlockPos, state: BlockState) : BlockEntity(QemuCraft.TERMINAL_BE_TYPE.get(), pos, state) {
+class TerminalEntity(pos: BlockPos, state: BlockState) : BlockEntity(UXNCraft.TERMINAL_BE_TYPE.get(), pos, state) {
 
     var busId: Byte = 1
 

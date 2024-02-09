@@ -2,6 +2,9 @@ package net.walksanator.uxncraft.vm
 
 import com.mojang.datafixers.util.Either
 import java.util.*
+import kotlin.experimental.and
+import kotlin.experimental.or
+import kotlin.experimental.xor
 
 enum class UxnError {
     Underflow, Overflow, ZeroDiv
@@ -9,49 +12,49 @@ enum class UxnError {
 
 @OptIn(ExperimentalUnsignedTypes::class)
 class Stack {
-    val s = UByteArray(0x100) //stack
-    var sp: UByte = 0u //stack pointer
+    val s = ByteArray(0x100) //stack
+    var sp: Byte = 0 //stack pointer
 
-    fun updateStackPointer(operandBytes: UByte, resultBytes: UByte, keepMode: Boolean): Optional<UxnError> {
+    fun updateStackPointer(operandBytes: Byte, resultBytes: Byte, keepMode: Boolean): Optional<UxnError> {
         if (operandBytes > sp) {
             return Optional.of(UxnError.Underflow)
         }
 
-        val newSp: UInt = (if (keepMode) {
+        val newSp: Int = (if (keepMode) {
             sp
         } else {
             // The subtraction of operandBytes does not need to be checked, as we have already
             // checked that operandBytes <= sp.
-            (sp - operandBytes).toUByte()
+            (sp - operandBytes).toByte()
         } + resultBytes)
-        if (newSp > UByte.MAX_VALUE) return Optional.of(UxnError.Overflow)
-        sp = newSp.toUByte()
+        if (newSp > Byte.MAX_VALUE) return Optional.of(UxnError.Overflow)
+        sp = newSp.toByte()
 
         return Optional.empty()
     }
 
-    fun getByte(offset: UByte): UByte = s[offset.toInt()]
-    fun getShort(offset: UByte): UShort {
-        val msb = getByte((offset + 1u).toUByte())
+    fun getByte(offset: Byte): Byte = s[offset.toInt()]
+    fun getShort(offset: Byte): Short {
+        val msb = getByte((offset + 1).toByte())
         val lsb = getByte(offset)
-        return (msb.toUShort().rotateRight(8).or(lsb.toUShort()))
+        return (msb.toShort().rotateRight(8).or(lsb.toShort()))
     }
 
-    fun setByte(offset: UByte, byte: UByte) {
-        s[(sp - offset).toInt()] = byte
+    fun setByte(offset: Byte, byte: Byte) {
+        s[(sp - offset)] = byte
     }
 
-    fun setShort(offset: UByte, short: UShort) {
-        val msb: UByte = short.rotateLeft(8).toUByte()
-        val lsb: UByte = short.and(0xffu).toUByte()
-        setByte((offset + 1u).toUByte(), msb)
+    fun setShort(offset: Byte, short: Short) {
+        val msb: Byte = short.rotateLeft(8).toByte()
+        val lsb: Byte = short.and(0xff).toByte()
+        setByte((offset + 1).toByte(), msb)
         setByte(offset, lsb)
     }
 }
 
 @OptIn(ExperimentalUnsignedTypes::class, ExperimentalStdlibApi::class)
-class Uxn(val ram: UByteArray) {
-    var pc: UShort = 0x100u
+class Uxn(val ram: ByteArray) {
+    var pc: Short = 0x100
     val ws = Stack() // Working Stack
     val rs = Stack() // Run Stack
     var devices = Array<Optional<Device>>(16) { Optional.empty() }
@@ -63,11 +66,11 @@ class Uxn(val ram: UByteArray) {
      */
     fun step(): Either<Boolean, UxnError> {
         val instruction = ram[pc.toInt()]
-        pc = (pc + 1u).toUShort()
+        pc = (pc + 1).toShort()
 
-        val keepMode: Boolean = (instruction and 128u).toInt() != 0
-        val returnMode: Boolean = (instruction and 64u).toInt() != 0
-        val immediate: Boolean = (instruction and 31u).toInt() == 0
+        val keepMode: Boolean = instruction.and(128.toByte()).toInt() != 0
+        val returnMode: Boolean = instruction.and(64).toInt() != 0
+        val immediate: Boolean = instruction.and(31).toInt() == 0
 
         val stack = if (returnMode) {
             rs
@@ -78,16 +81,16 @@ class Uxn(val ram: UByteArray) {
         val maskedInstruction = if (immediate) {
             instruction
         } else {
-            instruction.and(0b00111111u)
+            instruction.and(0b00111111)
         }
 
-        val t = stack.getByte(1u)
-        val n = stack.getByte(2u)
-        val l = stack.getByte(3u)
-        val h2 = stack.getShort(2u)
-        val t2 = stack.getShort(1u)
-        val n2 = stack.getShort(3u)
-        val l2 = stack.getShort(5u)
+        val t = stack.getByte(1)
+        val n = stack.getByte(2)
+        val l = stack.getByte(3)
+        val h2 = stack.getShort(2)
+        val t2 = stack.getShort(1)
+        val n2 = stack.getShort(3)
+        val l2 = stack.getShort(5)
 
         when (maskedInstruction.toInt()) {
             // BRK
@@ -97,276 +100,276 @@ class Uxn(val ram: UByteArray) {
             // JCI
             0x20 -> {
                 val msb = ram[pc.toInt()]
-                val lsb = ram[(pc + 1u).toInt()]
-                pc = (pc + 2u).toUShort()
-                val stackret = stack.updateStackPointer(1u, 0u, false)
+                val lsb = ram[pc + 1]
+                pc = (pc + 2).toShort()
+                val stackret = stack.updateStackPointer(1, 0, false)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
                 if (t.toInt() != 0) {
-                    pc = (pc + msb.msbToUShort(lsb)).toUShort()
+                    pc = (pc + msb.msbToShort(lsb)).toShort()
                 }
             }
             // JMI
             0x40 -> {
                 val msb = ram[pc.toInt()]
-                val lsb = ram[(pc + 1u).toInt()]
-                pc = (pc + 2u).toUShort()
-                pc = (pc + msb.msbToUShort(lsb)).toUShort()
+                val lsb = ram[pc + 1]
+                pc = (pc + 2).toShort()
+                pc = (pc + msb.msbToShort(lsb)).toShort()
             }
             // JSI
             0x60 -> {
                 val msb = ram[pc.toInt()]
-                val lsb = ram[(pc + 1u).toInt()]
-                pc = (pc + 2u).toUShort()
-                val stackret = rs.updateStackPointer(0u, 2u, false)
+                val lsb = ram[pc + 1]
+                pc = (pc + 2).toShort()
+                val stackret = rs.updateStackPointer(0, 2, false)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                rs.setShort(1u, pc)
-                pc = (pc + msb.msbToUShort(lsb)).toUShort()
+                rs.setShort(1, pc)
+                pc = (pc + msb.msbToShort(lsb)).toShort()
             }
             // LIT
             0x80 -> {
-                val stackret = stack.updateStackPointer(0u, 1u, true)
+                val stackret = stack.updateStackPointer(0, 1, true)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, ram[pc.toInt()])
-                pc = (pc + 1u).toUShort()
+                stack.setByte(1, ram[pc.toInt()])
+                pc = (pc + 1).toShort()
             }
             // LIT2
             0xa0 -> {
-                val stackret = stack.updateStackPointer(0u, 2u, true)
+                val stackret = stack.updateStackPointer(0, 2, true)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
                 val msb = ram[pc.toInt()]
-                val lsb = ram[(pc + 1u).toInt()]
-                stack.setShort(1u, msb.msbToUShort(lsb))
-                pc = (pc + 2u).toUShort()
+                val lsb = ram[pc + 1]
+                stack.setShort(1, msb.msbToShort(lsb))
+                pc = (pc + 2).toShort()
             }
             // LITr
             0xc0 -> {
-                val stackret = stack.updateStackPointer(0u, 1u, true)
+                val stackret = stack.updateStackPointer(0, 1, true)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, ram[pc.toInt()])
-                pc = (pc + 1u).toUShort()
+                stack.setByte(1, ram[pc.toInt()])
+                pc = (pc + 1).toShort()
             }
             // LIT2r
             0xe0 -> {
-                val stackret = stack.updateStackPointer(0u, 2u, true)
+                val stackret = stack.updateStackPointer(0, 2, true)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
                 val msb = ram[pc.toInt()]
-                val lsb = ram[(pc + 1u).toInt()]
-                stack.setShort(1u, msb.msbToUShort(lsb))
-                pc = (pc + 2u).toUShort()
+                val lsb = ram[pc + 1]
+                stack.setShort(1, msb.msbToShort(lsb))
+                pc = (pc + 2).toShort()
             }
             // END of immediate instrs
             // INC(2)
             0x01 -> {
-                val stackret = stack.updateStackPointer(1u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(1, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (t + 1u).toUByte())
+                stack.setByte(1, (t + 1).toByte())
             }
 
             0x21 -> {
-                val stackret = stack.updateStackPointer(2u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(2, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, (t2 + 1u).toUShort() )
+                stack.setShort(1, (t2 + 1).toShort() )
             }
             // POP(2)
             0x02 -> {
-                val stackret = stack.updateStackPointer(1u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(1, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
             }
             
             0x22 -> {
-                val stackret = stack.updateStackPointer(2u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(2, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
             }
             // NIP(2)
             0x03 -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, t)
+                stack.setByte(1, t)
             }
 
             0x23 -> {
-                val stackret = stack.updateStackPointer(4u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(4, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, t2)
+                stack.setShort(1, t2)
             }
             // SWP(2)
             0x04 -> {
-                val stackret = stack.updateStackPointer(2u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(2, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, n)
-                stack.setByte(2u, t)
+                stack.setByte(1, n)
+                stack.setByte(2, t)
             }
 
             0x24 -> {
-                val stackret = stack.updateStackPointer(4u, 4u, keepMode)
+                val stackret = stack.updateStackPointer(4, 4, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, n2)
-                stack.setShort(3u, t2)
+                stack.setShort(1, n2)
+                stack.setShort(3, t2)
             }
             // ROT(2)
             0x05 -> {
-                val stackret = stack.updateStackPointer(3u, 3u, keepMode)
+                val stackret = stack.updateStackPointer(3, 3, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, l)
-                stack.setByte(2u, t)
-                stack.setByte(3u, n)
+                stack.setByte(1, l)
+                stack.setByte(2, t)
+                stack.setByte(3, n)
             }
 
             0x25 -> {
-                val stackret = stack.updateStackPointer(6u, 6u, keepMode)
+                val stackret = stack.updateStackPointer(6, 6, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, l2)
-                stack.setShort(3u, t2)
-                stack.setShort(5u, n2)
+                stack.setShort(1, l2)
+                stack.setShort(3, t2)
+                stack.setShort(5, n2)
             }
 
             // DUP(2)
             0x06 -> {
-                val stackret = stack.updateStackPointer(1u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(1, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, t)
-                stack.setByte(2u, t)
+                stack.setByte(1, t)
+                stack.setByte(2, t)
             }
 
             0x26 -> {
-                val stackret = stack.updateStackPointer(2u, 4u, keepMode)
+                val stackret = stack.updateStackPointer(2, 4, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, t2)
-                stack.setShort(3u, t2)
+                stack.setShort(1, t2)
+                stack.setShort(3, t2)
             }
 
             // OVR(2)
             0x07 -> {
-                val stackret = stack.updateStackPointer(2u, 3u, keepMode)
+                val stackret = stack.updateStackPointer(2, 3, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, n)
-                stack.setByte(2u, t)
-                stack.setByte(3u, n)
+                stack.setByte(1, n)
+                stack.setByte(2, t)
+                stack.setByte(3, n)
             }
 
             0x27 -> {
-                val stackret = stack.updateStackPointer(4u, 6u, keepMode)
+                val stackret = stack.updateStackPointer(4, 6, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, n2)
-                stack.setShort(3u, t2)
-                stack.setShort(5u, n2)
+                stack.setShort(1, n2)
+                stack.setShort(3, t2)
+                stack.setShort(5, n2)
             }
             // EQU(2)
             0x08 -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n == t).into())
+                stack.setByte(1, (n == t).into())
             }
 
             0x28 -> {
-                val stackret = stack.updateStackPointer(4u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(4, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n2 == t2).into())
+                stack.setByte(1, (n2 == t2).into())
             }
             // NEQ(2)
             0x09 -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n != t).into())
+                stack.setByte(1, (n != t).into())
             }
 
             0x29 -> {
-                val stackret = stack.updateStackPointer(4u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(4, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n2 != t2).into())
+                stack.setByte(1, (n2 != t2).into())
             }
             // GTH(2)
             0x0a -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n > t).into())
+                stack.setByte(1, (n > t).into())
             }
 
             0x2a -> {
-                val stackret = stack.updateStackPointer(4u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(4, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n2 > t2).into())
+                stack.setByte(1, (n2 > t2).into())
             }
 
             // LTH(2)
             0x0b -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n < t).into())
+                stack.setByte(1, (n < t).into())
             }
 
             0x2b -> {
-                val stackret = stack.updateStackPointer(4u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(4, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n2 < t2).into())
+                stack.setByte(1, (n2 < t2).into())
             }
             // JMP(2)
             0x0c -> {
-                val stackret = stack.updateStackPointer(1u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(1, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                pc = (pc.toInt() + t.toByte()).toUShort() //TODO: WATCH THIS idk if I did it right
+                pc = (pc.toInt() + t.toByte()).toShort() //TODO: WATCH THIS idk if I did it right
             }
 
             0x2c -> {
-                val stackret = stack.updateStackPointer(2u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(2, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
@@ -374,96 +377,96 @@ class Uxn(val ram: UByteArray) {
             }
             // JCN(2)
             0x0d -> {
-                val stackret = stack.updateStackPointer(2u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(2, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                if (n.toUInt() != 0u) {
-                    pc = (pc.toInt() + t.toByte()).toUShort()
+                if (n.toInt() != 0) {
+                    pc = (pc.toInt() + t.toByte()).toShort()
                 }
             }
             0x2d -> {
-                val stackret = stack.updateStackPointer(3u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(3, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                if (l.toUInt() != 0u) {
+                if (l.toInt() != 0) {
                     pc = t2
                 }
             }
             // JSR(2)
             0x0e -> {
-                val stackret = stack.updateStackPointer(1u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(1, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                val stackret2 = rs.updateStackPointer(0u, 2u, false)
+                val stackret2 = rs.updateStackPointer(0, 2, false)
                 if (stackret2.isPresent) {
                     return Either.right(stackret2.get())
                 }
 
-                rs.setShort(1u, pc)
-                pc = (pc.toInt() + t.toByte()).toUShort() //TODO: WATCH I checked on kotlin playground and this looks *okay* but i am still unsure
+                rs.setShort(1, pc)
+                pc = (pc.toInt() + t.toByte()).toShort() //TODO: WATCH I checked on kotlin playground and this looks *okay* but i am still unsure
             }
 
             0x2e -> {
-                val stackret = stack.updateStackPointer(2u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(2, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                val stackret2 = rs.updateStackPointer(0u, 2u, false)
+                val stackret2 = rs.updateStackPointer(0, 2, false)
                 if (stackret2.isPresent) {
                     return Either.right(stackret2.get())
                 }
-                rs.setShort(1u, pc)
+                rs.setShort(1, pc)
                 pc = t2
             }
             // STH(2)
             0x0f -> {
-                val stackret = stack.updateStackPointer(1u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(1, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
                 val otherStack = if (returnMode) { ws } else { rs }
-                val stackret2 = otherStack.updateStackPointer(0u, 1u, false)
+                val stackret2 = otherStack.updateStackPointer(0, 1, false)
                 if (stackret2.isPresent) {
                     return Either.right(stackret2.get())
                 }
-                otherStack.setByte(1u, t)
+                otherStack.setByte(1, t)
             }
 
             0x2f -> {
-                val stackret = stack.updateStackPointer(2u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(2, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
                 val otherStack = if (returnMode) { ws } else { rs }
-                val stackret2 = otherStack.updateStackPointer(0u, 2u, false)
+                val stackret2 = otherStack.updateStackPointer(0, 2, false)
                 if (stackret2.isPresent) {
                     return Either.right(stackret2.get())
                 }
-                otherStack.setShort(1u, t2)
+                otherStack.setShort(1, t2)
             }
             // LDZ(2)
             0x10 -> {
-                val stackret = stack.updateStackPointer(1u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(1, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, ram[t.toInt()])
+                stack.setByte(1, ram[t.toInt()])
             }
 
             0x30 -> {
-                val stackret = stack.updateStackPointer(1u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(1, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, ram[(t+1u).toInt()])
-                stack.setByte(2u, ram[t.toInt()])
+                stack.setByte(1, ram[(t+1).toInt()])
+                stack.setByte(2, ram[t.toInt()])
             }
             // STZ(2)
             0x11 -> {
-                val stackret = stack.updateStackPointer(2u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(2, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
@@ -471,44 +474,44 @@ class Uxn(val ram: UByteArray) {
             }
 
             0x31 -> {
-                val stackret = stack.updateStackPointer(3u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(3, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                ram[ (t+1u).toInt()] = n
+                ram[ (t+1).toInt()] = n
                 ram[t.toInt()] = l
             }
 
             // LDR(2)
             0x12 -> {
-                val stackret = stack.updateStackPointer(1u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(1, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
                 stack.setByte(
-                    1u,
+                    1,
                     ram[pc.toInt() + t.toByte()],
                 )
             }
 
             0x32 -> {
-                val stackret = stack.updateStackPointer(1u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(1, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
                 stack.setByte(
-                    1u,
+                    1,
                     ram[pc.toInt() + t.toByte() + 1]
                 )
                 stack.setByte(
-                    2u,
+                    2,
                     ram[pc.toInt() + t.toByte()],
                 )
             }
 
             // STR(2)
             0x13 -> {
-                val stackret = stack.updateStackPointer(2u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(2, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
@@ -516,7 +519,7 @@ class Uxn(val ram: UByteArray) {
             }
 
             0x33 -> {
-                val stackret = stack.updateStackPointer(3u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(3, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
@@ -526,25 +529,25 @@ class Uxn(val ram: UByteArray) {
 
             // LDA(2)
             0x14 -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, ram[t2.toInt()])
+                stack.setByte(1, ram[t2.toInt()])
             }
 
             0x34 -> {
-                val stackret = stack.updateStackPointer(2u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(2, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, ram[t2.toInt() +1 ])
-                stack.setByte(2u, ram[t2.toInt()])
+                stack.setByte(1, ram[t2.toInt() +1 ])
+                stack.setByte(2, ram[t2.toInt()])
             }
 
             // STA(2)
             0x15 -> {
-                val stackret = stack.updateStackPointer(3u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(3, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
@@ -552,210 +555,210 @@ class Uxn(val ram: UByteArray) {
             }
 
             0x35 -> {
-                val stackret = stack.updateStackPointer(4u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(4, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
 
-                val value = n2.toUBytes()
+                val value = n2.toBytes()
                 ram[t2.toInt()] = value.first
                 ram[t2.toInt() + 1] = value.second
             }
 
             // DEI(2)
             0x16 -> {
-                val stackret = stack.updateStackPointer(1u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(1, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                val device = devices[t.and(0xf0u).rotateRight(4).toInt()]
+                val device = devices[t.and(0xf0.toByte()).rotateRight(4).toInt()]
                 if (device.isPresent) {
                     stack.setByte(
-                        1u,
-                        device.get().readByte(t.and(0x0fu))
+                        1,
+                        device.get().readByte(t.and(0x0f))
                     )
                 } else {
-                    stack.setByte(1u,0x00u)
+                    stack.setByte(1,0x00)
                 }
             }
 
             0x36 -> {
-                val stackret = stack.updateStackPointer(1u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(1, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                val device = devices[t.and(0xf0u).rotateRight(4).toInt()]
+                val device = devices[t.and(0xf0.toByte()).rotateRight(4).toInt()]
                 if (device.isPresent) {
-                    stack.setShort(1u, device.get().readShort(t.and(0x0fu)))
+                    stack.setShort(1, device.get().readShort(t.and(0x0f)))
                 } else {
-                    stack.setShort(1u, 0x0000u)
+                    stack.setShort(1, 0x0000)
                 }
             }
             // DEO(2)
             0x17 -> {
-                val stackret = stack.updateStackPointer(2u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(2, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                val stackret2 = stack.updateStackPointer(1u, 1u, keepMode)
+                val stackret2 = stack.updateStackPointer(1, 1, keepMode)
                 if (stackret2.isPresent) {
                     return Either.right(stackret2.get())
                 }
-                val device = devices[t.and(0xf0u).rotateRight(4).toInt()]
+                val device = devices[t.and(0xf0.toByte()).rotateRight(4).toInt()]
                 if (device.isPresent) {
-                    device.get().writeByte(t.and(0x0fu), n)
+                    device.get().writeByte(t.and(0x0f), n)
                 }
             }
 
             0x37 -> {
-                val stackret = stack.updateStackPointer(3u, 0u, keepMode)
+                val stackret = stack.updateStackPointer(3, 0, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                val device = devices[t.and(0xf0u).rotateRight(4).toInt()]
+                val device = devices[t.and(0xf0.toByte()).rotateRight(4).toInt()]
                 if (device.isPresent) {
-                    device.get().writeShort(t.and(0x0fu), h2)
+                    device.get().writeShort(t.and(0x0f), h2)
                 }
             }
             // ADD(2)
             0x18 -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n+t).toUByte())
+                stack.setByte(1, (n+t).toByte())
             }
 
             0x38 -> {
-                val stackret = stack.updateStackPointer(4u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(4, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, (n2+t2).toUShort())
+                stack.setShort(1, (n2+t2).toShort())
             }
             // SUB(2)
             0x19 -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n +t).toUByte())
+                stack.setByte(1, (n +t).toByte())
             }
 
             0x39 -> {
-                val stackret = stack.updateStackPointer(4u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(4, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, (n2-t2).toUShort())
+                stack.setShort(1, (n2-t2).toShort())
             }
             // MUL(2)
             0x1a -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, (n*t).toUByte())
+                stack.setByte(1, (n*t).toByte())
             }
 
             0x3a -> {
-                val stackret = stack.updateStackPointer(4u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(4, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, (n2*t2).toUShort())
+                stack.setShort(1, (n2*t2).toShort())
             }
             // DIV(2)
             0x1b -> {
-                if (t.toUInt() == 0u) {return Either.right(UxnError.ZeroDiv)}
+                if (t.toInt() == 0) {return Either.right(UxnError.ZeroDiv)}
                 val quotient = n / t
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, quotient.toUByte())
+                stack.setByte(1, quotient.toByte())
             }
 
             0x3b -> {
-                if (t2.toUInt() == 0u) {return Either.right(UxnError.ZeroDiv)}
+                if (t2.toInt() == 0) {return Either.right(UxnError.ZeroDiv)}
                 val quotient = n2 / t2
-                val stackret = stack.updateStackPointer(4u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(4, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, quotient.toUShort())
+                stack.setShort(1, quotient.toShort())
             }
             // AND(2)
             0x1c -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, n.and(t))
+                stack.setByte(1, n.and(t))
             }
 
             0x3c -> {
-                val stackret = stack.updateStackPointer(4u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(4, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, n2.and(t2))
+                stack.setShort(1, n2.and(t2))
             }
 
             // ORA(2)
             0x1d -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, n.or(t))
+                stack.setByte(1, n.or(t))
             }
 
             0x3d -> {
-                val stackret = stack.updateStackPointer(4u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(4, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, n2.or(t2))
+                stack.setShort(1, n2.or(t2))
             }
 
             // EOR(2)
             0x1e -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, n.xor(t))
+                stack.setByte(1, n.xor(t))
             }
 
             0x3e -> {
-                val stackret = stack.updateStackPointer(4u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(4, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, n2.xor(t2))
+                stack.setShort(1, n2.xor(t2))
             }
 
             // SFT(2)
             0x1f -> {
-                val stackret = stack.updateStackPointer(2u, 1u, keepMode)
+                val stackret = stack.updateStackPointer(2, 1, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setByte(1u, 
-                    n.rotateRight(t.and(0x0fu).toInt())
-                        .rotateLeft(t.and(0xf0u).rotateRight(4).toInt())
+                stack.setByte(1, 
+                    n.rotateRight(t.and(0x0f).toInt())
+                        .rotateLeft(t.and(0xf0.toByte()).rotateRight(4).toInt())
                 )
             }
 
             0x3f -> {
-                val stackret = stack.updateStackPointer(3u, 2u, keepMode)
+                val stackret = stack.updateStackPointer(3, 2, keepMode)
                 if (stackret.isPresent) {
                     return Either.right(stackret.get())
                 }
-                stack.setShort(1u, //TODO: CHECK THIS it may be implemented wrong
-                        h2.rotateRight(t.and(0x0fu).toInt())
-                            .rotateLeft(t.and(0xf0u).rotateRight(4).toInt())
+                stack.setShort(1, //TODO: CHECK THIS it may be implemented wrong
+                        h2.rotateRight(t.and(0x0f).toInt())
+                            .rotateLeft(t.and(0xf0.toByte()).rotateRight(4).toInt())
                 )
             }
 
@@ -774,17 +777,17 @@ class Uxn(val ram: UByteArray) {
     }
 }
 
-fun UShort.toUBytes(): Pair<UByte,UByte> {
+fun Short.toBytes(): Pair<Byte,Byte> {
     return Pair(
-        this.rotateRight(8).toUByte(),
-        this.and(0xffu).toUByte()
+        this.rotateRight(8).toByte(),
+        this.and(0xff).toByte()
     )
 }
-fun UByte.msbToUShort(lsb: UByte): UShort = (this.toUShort().rotateRight(8).or(lsb.toUShort()))
-fun Boolean.into(): UByte {
+fun Byte.msbToShort(lsb: Byte): Short = (this.toShort().rotateRight(8).or(lsb.toShort()))
+fun Boolean.into(): Byte {
     return (if (this) {
-        1u
+        1
     } else {
-        0u
-    }).toUByte()
+        0
+    }).toByte()
 }
