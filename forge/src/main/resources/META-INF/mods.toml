@@ -4,7 +4,7 @@ loaderVersion = "[45,)"
 license = "Insert License Here"
 
 [[mods]]
-modId = "qemucraft"
+modId = "uxncraft"
 version = "${version}"
 displayName = "Example Mod"
 authors = "Me!"
@@ -13,21 +13,21 @@ This is an example description! Tell everyone what your mod is about!
 '''
 #logoFile = ""
 
-[[dependencies.qemucraft]]
+[[dependencies.uxncraft]]
 modId = "forge"
 mandatory = true
 versionRange = "[45,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.qemucraft]]
+[[dependencies.uxncraft]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[1.20.1,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.qemucraft]]
+[[dependencies.uxncraft]]
 modId = "architectury"
 mandatory = true
 versionRange = "[8.1.79,)"

@@ -14,8 +14,8 @@ loom {
         convertAccessWideners = true
         extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
 
-        mixinConfig "qemucraft-common.mixins.json"
-        mixinConfig "qemucraft.mixins.json"
+        mixinConfig "uxncraft-common.mixins.json"
+        mixinConfig "uxncraft.mixins.json"
     }
 }
 

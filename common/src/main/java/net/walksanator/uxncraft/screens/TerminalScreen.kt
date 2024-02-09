@@ -39,7 +39,7 @@ private val charsetTex = createTexture()
 
 private const val scale = 8
 
-class TerminalScreen(val te: TerminalEntity) : Screen(Component.translatable("block.qemucraft.terminal")) {
+class TerminalScreen(val te: TerminalEntity) : Screen(Component.translatable("block.uxncraft.terminal")) {
 
     private var uMvp = 0
     private var uCharset = 0
