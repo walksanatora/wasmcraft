@@ -56,7 +56,7 @@ public class UXNCraft {
 
     public static <T extends Block> RegistrySupplier<T> blockItem(String name, Supplier<T> block, Item.Properties props) {
         RegistrySupplier<T> blockRegistered = BLOCKS.register(new ResourceLocation(MOD_ID, name), block);
-        ITEMS.register(new ResourceLocation(MOD_ID, name), () -> new BlockItem(block.get(), props));
+        ITEMS.register(new ResourceLocation(MOD_ID, name), () -> new BlockItem(blockRegistered.get(), props));
         return blockRegistered;
     }
 }

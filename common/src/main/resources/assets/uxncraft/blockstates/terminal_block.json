@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "uxncraft:block/terminal_block" }
+  }
+}
